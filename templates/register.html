@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+
+<section class="bg-gradient text-white py-5"
+        style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh;">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+
+                <div class="card border-0 shadow-lg animate__animated animate__fadeInUp"
+                     style="border-radius: 20px; overflow: hidden;">
+                    <div class="card-header bg-primary text-white text-center py-4 border-0">
+                        <h3 class="mb-0 fw-bold">
+                            Create Your Account
+                        </h3>
+                    </div>
+
+                    <div class="card-body p-5" style="background:#f8f9fa;">
+                        <form method="post" id="registerForm" novalidate>
+                            {% csrf_token %}
+
+                            <!-- Username -->
+                            <div class="mb-4 position-relative">
+                                {% bootstrap_field form.username show_label=False placeholder="" %}
+                                <label for="{{ form.username.id_for_label }}"
+                                       class="form-label floating-label">
+                                    Username
+                                </label>
+                                <div class="invalid-feedback d-block" id="username-error"></div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-4 position-relative">
+                                {% bootstrap_field form.email show_label=False placeholder="" %}
+                                <label for="{{ form.email.id_for_label }}"
+                                       class="form-label floating-label">
+                                    Email Address
+                                </label>
+                                <div class="invalid-feedback d-block" id="email-error"></div>
+                            </div>
+
+                            <!-- Password1 – NO HELP TEXT -->
+                            <div class="mb-4 position-relative">
+                                {% bootstrap_field form.password1 show_label=False placeholder="" show_help=False %}
+                                <label for="{{ form.password1.id_for_label }}"
+                                       class="form-label floating-label">
+                                    Password
+                                </label>
+                                <div class="invalid-feedback d-block" id="password1-error"></div>
+                            </div>
+
+                            <!-- Password2 – NO HELP TEXT -->
+                            <div class="mb-4 position-relative">
+                                {% bootstrap_field form.password2 show_label=False placeholder="" show_help=False %}
+                                <label for="{{ form.password2.id_for_label }}"
+                                       class="form-label floating-label">
+                                    Confirm Password
+                                </label>
+                                <div class="invalid-feedback d-block" id="password2-error"></div>
+                            </div>
+
+                            <!-- Role -->
+                            <div class="mb-4">
+                                {% bootstrap_field form.role %}
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-warning btn-lg w-100 fw-bold shadow-lg"
+                                    id="submitBtn">
+                                <span class="spinner-border spinner-border-sm d-none"
+                                      role="status" id="spinner"></span>
+                                Register Now
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted mb-0">
+                                Already have an account?
+                                <a href="{% url 'login' %}"
+                                   class="text-primary fw-bold text-decoration-none">
+                                    Login here
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ====================== CSS ====================== -->
+<style>
+    .bg-gradient{background:linear-gradient(135deg,#1e3c72 0%,#2a5298 100%);}
+    .card{backdrop-filter:blur(10px);background:rgba(255,255,255,.95);}
+    .form-control{border-radius:12px;padding:.75rem 1rem;border:2px solid #ced4da;transition:all .3s ease;font-size:1rem;}
+    .form-control:focus{border-color:#ffc107;box-shadow:0 0 0 .25rem rgba(255,193,7,.25);transform:scale(1.02);}
+    .floating-label{position:absolute;top:50%;left:2.8rem;transform:translateY(-50%);font-size:1rem;color:#6c757d;
+                    pointer-events:none;transition:all .3s ease;background:#f8f9fa;padding:0 .4rem;}
+    .form-control:focus ~ .floating-label,
+    .form-control:not(:placeholder-shown) ~ .floating-label{
+        top:-.5rem;left:1.5rem;font-size:.85rem;color:#ffc107;font-weight:600;}
+    .invalid-feedback{font-size:.875rem;margin-top:.25rem;min-height:1.5rem;}
+    .btn-warning{background:linear-gradient(45deg,#ffc107,#ff8c00);border:none;border-radius:12px;
+                 font-weight:600;transition:all .3s ease;}
+    .btn-warning:hover{background:linear-gradient(45deg,#ff8c00,#f57c00);transform:translateY(-3px);
+                       box-shadow:0 8px 20px rgba(255,193,7,.4);}
+    #spinner{width:1rem;height:1rem;}
+</style>
+
+<!-- ====================== JS – ONLY SHOW ERRORS ON INPUT ====================== -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form      = document.getElementById('registerForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const spinner   = document.getElementById('spinner');
+
+    const fields = {
+        username : document.getElementById('id_username'),
+        email    : document.getElementById('id_email'),
+        password1: document.getElementById('id_password1'),
+        password2: document.getElementById('id_password2')
+    };
+
+    const errors = {
+        username : document.getElementById('username-error'),
+        email    : document.getElementById('email-error'),
+        password1: document.getElementById('password1-error'),
+        password2: document.getElementById('password2-error')
+    };
+
+    /* ---- 1. HIDE DJANGO HELP TEXT ON PAGE LOAD ---- */
+    document.querySelectorAll('.helptext').forEach(el => el.remove());
+
+    /* ---- 2. SERVER ERRORS (after failed POST) ---- */
+    function syncServerErrors() {
+        Object.keys(fields).forEach(key => {
+            const input = fields[key];
+            const ul = input.parentElement.querySelector('ul.errorlist');
+            if (ul) {
+                const msg = ul.textContent.trim();
+                showError(key, msg);
+                ul.remove();
+            }
+        });
+    }
+
+    /* ---- 3. CLIENT-SIDE VALIDATION (only when typing) ---- */
+    fields.username.addEventListener('input', validateUsername);
+    fields.email.addEventListener('input',    validateEmail);
+    fields.password1.addEventListener('input',() => {validatePassword1(); validatePassword2();});
+    fields.password2.addEventListener('input',() => validatePassword2());
+
+    function validateUsername(){
+        const v = fields.username.value.trim();
+        if(v.length===0) return clearError('username');
+        if(v.length<3){showError('username','Username must be at least 3 characters.'); return false;}
+        clearError('username'); return true;
+    }
+    function validateEmail(){
+        const v = fields.email.value.trim();
+        if(v.length===0) return clearError('email');
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if(!re.test(v)){showError('email','Enter a valid email address.'); return false;}
+        clearError('email'); return true;
+    }
+    function validatePassword1(){
+        const v = fields.password1.value;
+        if(v.length===0) return clearError('password1');
+        if(v.length<8){showError('password1','Password must be at least 8 characters.'); return false;}
+        clearError('password1'); return true;
+    }
+    function validatePassword2(){
+        const p1 = fields.password1.value;
+        const p2 = fields.password2.value;
+        if(p2.length===0) return clearError('password2');
+        if(p1 && p2 && p1!==p2){showError('password2','Passwords do not match.'); return false;}
+        clearError('password2'); return true;
+    }
+
+    function showError(field,msg){
+        errors[field].textContent = msg;
+        fields[field].classList.add('is-invalid');
+    }
+    function clearError(field){
+        errors[field].textContent = '';
+        fields[field].classList.remove('is-invalid');
+    }
+
+    /* ---- 4. SUBMIT ---- */
+    form.addEventListener('submit', e => {
+        const ok = validateUsername() && validateEmail() && validatePassword1() && validatePassword2();
+        if(!ok) e.preventDefault();
+        else { submitBtn.disabled=true; spinner.classList.remove('d-none'); }
+    });
+
+    /* ---- 5. AFTER POST-BACK ---- */
+    syncServerErrors();
+});
+</script>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

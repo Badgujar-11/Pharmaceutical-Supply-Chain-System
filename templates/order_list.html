@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary fw-bold">Orders Management</h2>
+            <a href="{% url 'order_create' %}" class="btn btn-warning fw-bold">
+                <i class="bi bi-plus-circle me-2"></i>Place New Order
+            </a>
+        </div>
+        <div class="card shadow border-0">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Status</th>
+                                <th>Transporter</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>#{{ order.pk }}</td>
+                                    <td>{{ order.product.name }}</td>
+                                    <td>{{ order.quantity }}</td>
+                                    <td><span class="badge bg-{{ order.status|lower }}">{{ order.status|title }}</span></td>
+                                    <td>{{ order.transporter|default:"N/A" }}</td>
+                                    <td>
+                                        <a href="{% url 'order_update' order.pk %}" class="btn btn-sm btn-outline-primary me-1">Update</a>
+                                        {% if order.status == 'pending' %}
+                                            <a href="{% url 'order_delete' order.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this order?')">Cancel</a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr><td colspan="6" class="text-center text-muted py-4">No orders yet. <a href="{% url 'order_create' %}">Place one</a>.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.table-hover tbody tr:hover { background-color: rgba(30, 60, 114, 0.05); }
+.btn-warning { background: linear-gradient(45deg, #ffc107, #ff8c00); border: none; }
+.btn-warning:hover { background: linear-gradient(45deg, #ff8c00, #f57c00); transform: scale(1.05); }
+</style>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}

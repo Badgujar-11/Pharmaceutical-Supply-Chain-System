@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="bg-gradient text-white py-5" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); min-height: 100vh;">
+    <div class="container py-5">
+        <div class="row align-items-center text-center text-md-start">
+            <!-- Left: Text -->
+            <div class="col-lg-6 animate__animated animate__fadeInLeft">
+                <h1 class="text-warning display-4 fw-bold mb-4">
+                    PharmaChain <span class="text-warning">Secure. Transparent. Efficient.</span>
+                </h1>
+                <p class="lead mb-4" style="color: #4577d3;">
+                    Pharmaceutical supply chain system that ensures 
+                    <strong>traceability</strong>, <strong>authenticity</strong>, and <strong>trust</strong> from manufacturer to patient.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-md-start">
+                    <a href="{% url 'login' %}" class="btn btn-warning btn-lg px-5 py-3 shadow-lg fw-bold text-dark">
+                        Login
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-warning btn-lg px-5 py-3 shadow-lg fw-bold">
+                        Register Now
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right: Your Custom Logo -->
+            <div class="col-lg-6 text-center mt-5 mt-lg-0 animate__animated animate__fadeInRight">
+                <img src="https://media.istockphoto.com/id/1339280086/vector/capsule-cart-and-home-icon-logo-medicine-home-delivery-service-logo-concept.jpg?s=612x612&w=0&k=20&c=ST5kkcX2_6uZ8HcgB6uoCMh3XqmBkw0W1n0TlSk2q2A=" 
+                     alt="PharmaChain Logo" 
+                     class="img-fluid rounded-pill shadow-lg"
+                     style="max-width: 380px; border: 8px solid rgba(255,255,255,0.2);">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center display-5 fw-bold mb-5 text-primary">Why Choose PharmaChain?</h2>
+        <div class="row g-4">
+            <!-- Feature 1 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 hover-card animate__animated animate__fadeInUp">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3 bg-success bg-opacity-10">
+                            <i class="bi bi-shield-lock fs-1 text-success"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Tamper-Proof Audit Logs</h5>
+                        <p class="card-text text-muted">
+                            Every transaction is hashed and logged immutably using SHA-256.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 hover-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3 bg-primary bg-opacity-10">
+                            <i class="bi bi-truck fs-1 text-primary"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Real-Time Tracking</h5>
+                        <p class="card-text text-muted">
+                            Track orders from supplier → distributor → pharmacy → patient.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0 hover-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-3 bg-warning bg-opacity-10">
+                            <i class="bi bi-person-check fs-1 text-warning"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Role-Based Access</h5>
+                        <p class="card-text text-muted">
+                            Admin, Supplier, Distributor, Pharmacy, Customer — secure and controlled.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h3 class="fw-bold mb-4">Ready to Secure Your Supply Chain?</h3>
+        <p class="lead mb-4">Join thousands of healthcare providers using PharmaChain today.</p>
+        <a href="{% url 'register' %}" class="btn btn-warning btn-lg px-5 shadow fw-bold">
+            Get Started Free
+        </a>
+    </div>
+</section>
+
+<!-- Custom CSS -->
+<style>
+    .bg-gradient {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    }
+    .hover-card {
+        transition: all 0.3s ease;
+        border-radius: 18px;
+        overflow: hidden;
+    }
+    .hover-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.18) !important;
+    }
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        backdrop-filter: blur(5px);
+    }
+    .btn-warning {
+        background: linear-gradient(45deg, #ffc107, #ff8c00);
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    .btn-warning:hover {
+        background: linear-gradient(45deg, #ff8c00, #f57c00);
+        transform: scale(1.05);
+    }
+    .btn-outline-warning {
+        border: 2px solid #ffc107;
+        color: #ffc107;
+        font-weight: 600;
+    }
+    .btn-outline-warning:hover {
+        background: #ffc107;
+        color: #1e3c72;
+        transform: scale(1.05);
+    }
+</style>
+
+<!-- Bootstrap Icons -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+{% endblock %}

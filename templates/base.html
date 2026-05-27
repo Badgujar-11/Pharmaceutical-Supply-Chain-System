@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharma Supply Chain</title>
+
+    <!-- Load static files tag -->
+    {% load static %}
+    {% load django_bootstrap5 %}
+
+    <!-- Bootstrap 5 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional Custom CSS -->
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+</head>
+<body class="bg-light" data-user="{{ user }}">
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <img src="https://media.istockphoto.com/id/1339280086/vector/capsule-cart-and-home-icon-logo-medicine-home-delivery-service-logo-concept.jpg?s=612x612&w=0&k=20&c=ST5kkcX2_6uZ8HcgB6uoCMh3XqmBkw0W1n0TlSk2q2A=" 
+                     alt="PharmaChain" 
+                     width="40" 
+                     height="40" 
+                     class="rounded-pill me-2 shadow-sm">
+                <span class="fw-bold">PharmaChain</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item me-3">
+                            <span class="navbar-text text-light">
+                                Welcome, <strong>{{ user.username }}</strong> ({{ user.role|capfirst }})
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <!-- Secure Logout with POST -->
+                            <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link btn btn-link text-light p-0 border-0 bg-transparent">
+                                    Logout
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light btn-sm ms-2" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content Block -->
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS (for dropdowns, modals, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- === SAFE WEBSOCKET SCRIPT (NO HOVER, NO RELOAD ON LOGIN) === -->
+    <script>
+        // Only connect WebSocket if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = document.body.getAttribute('data-user');
+            if (user && user !== 'AnonymousUser') {
+                connectWebSocket();
+            }
+        });
+
+        function connectWebSocket() {
+            // Skip on login/register pages
+            if (window.location.pathname.includes('/login/') || 
+                window.location.pathname.includes('/register/') || 
+                window.location.pathname.includes('/password-reset/')) {
+                return;
+            }
+
+            const socket = new WebSocket('ws://' + window.location.host + '/ws/notifications/');
+
+            socket.onopen = function(e) {
+                console.log('WebSocket connected for real-time alerts');
+            };
+
+            socket.onmessage = function(e) {
+                try {
+                    const data = JSON.parse(e.data);
+                    const alert = `
+                        <div class="alert alert-success alert-dismissible fade show position-fixed shadow-sm" 
+                             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px; font-size: 0.9rem; border-left: 4px solid #198754;">
+                            <strong>Live Update:</strong> ${data.message}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>`;
+                    document.body.insertAdjacentHTML('beforeend', alert);
+
+                    // Auto-remove after 5 seconds
+                    setTimeout(() => {
+                        const el = document.querySelector('.alert');
+                        if (el) el.remove();
+                    }, 5000);
+                } catch (err) {
+                    console.error('Invalid WebSocket message:', err);
+                }
+            };
+
+            socket.onerror = function(e) {
+                console.error('WebSocket error:', e);
+            };
+
+            socket.onclose = function(e) {
+                console.log('WebSocket closed. Reconnecting in 3s...');
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+    </script>
+</body>
+</html>
